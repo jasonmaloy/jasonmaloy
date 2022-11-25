@@ -1,0 +1,30 @@
+Jason Maloy
+peon.c: My C shell, named after the lovable orcish peons of Warcraft. 
+background_demo.c: Demonstration/"faking" of background process functionality.
+
+IMPLEMENTED:
+- Input using fgets (didn't use readline library due to memory leaks)
+- Forking and execing
+- Built in commands: cd, cd <dir>, myinfo, exit
+- Foreground command processing off a multi-token vectorized command line (spaces required; extra whitespace ignored)
+- SIGINT handling
+- Input/output redirection with < and >. You can continue including flags after your input/output file and it will work.
+
+FAKED:
+Background processes (see: background_demo)
+
+UNIMPLEMENTED:
+Piping
+
+Background processes were a problem for me. What I tried doing is 
+setting background processes to process group 1 and waiting on them with
+waitid(P_PGID, 1, &(whatever status var), WNOHANG). Other processes were set to
+process group 2, and their wait command was
+waitid(P_PGID, 2, &(other status var), WEXITED|WSTOPPED).
+
+What I found was that this somehow (inexplicably) caused all programs to run in
+the background. My best guess is that I misunderstood how process groups work.
+In Peon, if a proper & token (i.e., a & token at the end of the command)
+is found, it will discard it and run the cmd in the foreground. 
+
+Piping caused other issues; | is not parsed in any way.
